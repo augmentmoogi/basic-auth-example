@@ -18,9 +18,6 @@ passport.use(new GitHubStrategy({
   }
 ));
 
-
-// app.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
-
 // GitHub OAuth callback route
 app.get('/auth/github/callback',
     passport.authenticate('github', { session: false }),
