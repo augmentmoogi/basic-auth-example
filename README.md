@@ -32,6 +32,7 @@ app.get('/auth/github/callback',
 );
 
 
+
 app.get('/', (req, res) => {
     res.send(`<a href="/login">Login</a>`);
 });
