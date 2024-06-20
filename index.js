@@ -6,38 +6,35 @@ const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } = config;
 
 const app = express();
 
-var GitHubStrategy = require('passport-github').Strategy;
+const OAuth2Strategy = require('passport-oauth2');
 
-passport.use(new GitHubStrategy({
+passport.use(new OAuth2Strategy({
+    authorizationURL: 'https://github.com/login/oauth/authorize',
+    tokenURL: 'https://github.com/login/oauth/access_token',
     clientID: GITHUB_CLIENT_ID,
     clientSecret: GITHUB_CLIENT_SECRET,
     callbackURL: "http://localhost:3000/auth/callback"
   },
   function(accessToken, refreshToken, profile, done) {
-    done(null, profile);
+    done(null, {
+      accessToken,
+      refreshToken,
+      profile
+    });
   }
 ));
 
-// GitHub OAuth callback route
-app.get('/auth/github/callback',
-    passport.authenticate('github', { session: false }),
-    (req, res) => {
-        // Generate JWT token upon successful authentication
-        const token = generateJWTToken(req.user);
-        res.json({ token });
-    }
-);
 
 
 app.get('/', (req, res) => {
     res.send(`<a href="/login">Login</a>`);
 });
 
-app.get('/login', passport.authenticate('github'))
+app.get('/login', passport.authenticate('oauth2'))
 
 
 app.get('/auth/callback',
-  passport.authenticate('github', { failureRedirect: '/login-error', session: false}),
+  passport.authenticate('oauth2', { failureRedirect: '/login-error', session: false}),
   function(req, res) {
     console.log('this is user', req.user);
     // Successful authentication, redirect home.
@@ -54,5 +51,3 @@ app.get('/homepage', (req, res) => {
 app.listen(3000, () => {
     console.log('Example app listening on port 3000!');
 });
-
-
